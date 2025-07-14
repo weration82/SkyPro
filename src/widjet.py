@@ -10,9 +10,9 @@ def mask_account_card(info: str) -> str:
         raise ValueError("Строка должна содержать тип (карта или счет) и номер")
 
     number = parts[-1]
-    name = ' '.join(parts[:-1])
+    name = " ".join(parts[:-1])
 
-    if name.lower() in ('счет', 'счёт'):
+    if name.lower() in ("счет", "счёт"):
         masked_number = get_mask_account(number)
     else:
         masked_number = get_mask_card_number(number)

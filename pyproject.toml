@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "homework-9-1"
+version = "0.1.0"
+description = ""
+authors = ["Kosta Valeev <konstantin.s.valeev@gmail.com>"]
+readme = "README.md"
+packages = [{include = "homework_9"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+
+[tool.poetry.group.lint.dependencies]
+flake8 = "^7.3.0"
+mypy = "^1.16.1"
+black = "^25.1.0"
+isort = "^6.0.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+disallow_untyped_defs = true
+warn_return_any = true
+exclude = [".venv"]
+
+[tool.black]
+line_length = 119
+exclude = ".git"
+
+[tool.isort]
+line_length = 119

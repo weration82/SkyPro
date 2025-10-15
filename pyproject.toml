@@ -30,6 +30,10 @@ disallow_untyped_defs = true
 warn_return_any = true
 exclude = [".venv"]
 
+[tool.mypy.overrides]
+module = ["tests.*"]
+disallow_untyped_defs = false
+
 [tool.black]
 line_length = 119
 exclude = ".git"

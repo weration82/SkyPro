@@ -17,7 +17,7 @@ def get_mask_account(account_number: str) -> str:
     """Принимает на вход номер счета возвращает маску номера."""
     account_str = account_number
 
-    if len(account_str) < 4 or not account_str.isdigit():
+    if len(account_str) <= 4 or not account_str.isdigit():
         raise ValueError("Номер счета должен иметь больше 4х цифр")
 
     last_four_digits = account_str[-4:]

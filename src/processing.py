@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any, Dict, List
 
 
-def filter_by_state(data: List[Dict[str, Any]], state: str = 'EXECUTED') -> List[Dict[str, Any]]:
+def filter_by_state(data: List[Dict[str, Any]], state: str = "EXECUTED") -> List[Dict[str, Any]]:
     """
     Возвращает список словарей, у которых значение ключа 'state' совпадает с указанным.
 
@@ -10,7 +10,7 @@ def filter_by_state(data: List[Dict[str, Any]], state: str = 'EXECUTED') -> List
     :param state: значение состояния для фильтрации (по умолчанию 'EXECUTED')
     :return: новый список словарей
     """
-    return [item for item in data if item.get('state') == state]
+    return [item for item in data if item.get("state") == state]
 
 
 # Код для проверки
@@ -22,7 +22,6 @@ def filter_by_state(data: List[Dict[str, Any]], state: str = 'EXECUTED') -> List
 # ], "CANCELED"))
 
 
-
 def sort_by_date(data: List[Dict[str, Any]], descending: bool = True) -> List[Dict[str, Any]]:
     """
     Возвращает новый список словарей, отсортированный по дате (ключ 'date').
@@ -31,11 +30,7 @@ def sort_by_date(data: List[Dict[str, Any]], descending: bool = True) -> List[Di
     :param descending: порядок сортировки (по умолчанию True — убывание)
     :return: отсортированный список словарей
     """
-    return sorted(
-        data,
-        key=lambda x: datetime.fromisoformat(x['date']),
-        reverse=descending
-    )
+    return sorted(data, key=lambda x: datetime.fromisoformat(x["date"]), reverse=descending)
 
 
 # Код для проверки

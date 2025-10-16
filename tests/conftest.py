@@ -1,5 +1,6 @@
 # conftest.py
 import pytest
+from typing import Any, Dict
 
 # =============================
 # get_mask_card_number
@@ -529,5 +530,303 @@ def sort_date_error_case(request):
     - отсутствует ключ 'date'
     - смешение naive/aware datetime
     - неверные типы полей/элементов
+    """
+    return request.param
+
+
+# =============================
+# filter_by_currency
+# =============================
+
+
+@pytest.fixture(
+    params=[
+        {
+            "name": "доллары_и_евро",
+            "transactions": [
+                {"id": 1, "operationAmount": {"amount": "100.00", "currency": {"code": "USD"}}},
+                {"id": 2, "operationAmount": {"amount": "200.00", "currency": {"code": "EUR"}}},
+                {"id": 3, "operationAmount": {"amount": "300.00", "currency": {"code": "USD"}}},
+            ],
+            "currency": "USD",
+            "expected_ids": [1, 3],
+        },
+        {
+            "name": "только_евро",
+            "transactions": [
+                {"id": 10, "operationAmount": {"amount": "50.00", "currency": {"code": "EUR"}}},
+                {"id": 11, "operationAmount": {"amount": "75.00", "currency": {"code": "EUR"}}},
+            ],
+            "currency": "EUR",
+            "expected_ids": [10, 11],
+        },
+        {
+            "name": "нет_совпадений",
+            "transactions": [
+                {"id": 1, "operationAmount": {"amount": "100.00", "currency": {"code": "GBP"}}},
+                {"id": 2, "operationAmount": {"amount": "200.00", "currency": {"code": "JPY"}}},
+            ],
+            "currency": "USD",
+            "expected_ids": [],
+        },
+        {
+            "name": "пустой_список",
+            "transactions": [],
+            "currency": "USD",
+            "expected_ids": [],
+        },
+        {
+            "name": "с_неполной_структурой",
+            "transactions": [
+                {"id": 1, "operationAmount": {"amount": "100.00"}},  # нет currency
+                {"id": 2, "operationAmount": {"currency": {"code": "USD"}}},
+                {"id": 3},  # вообще нет operationAmount
+            ],
+            "currency": "USD",
+            "expected_ids": [2],
+        },
+    ]
+)
+def currency_case(request):
+    """
+    Валидные и краевые кейсы для filter_by_currency:
+    - разное количество совпадений
+    - неполные структуры
+    - пустой список
+    """
+    return request.param
+
+
+@pytest.fixture(
+    params=[
+        {
+            "name": "transactions_None",
+            "transactions": None,
+            "currency": "USD",
+            "expected_exception": TypeError,  # нельзя итерировать None
+        },
+        {
+            "name": "transactions_не_список",
+            "transactions": {"id": 1, "operationAmount": {"currency": {"code": "USD"}}},
+            "currency": "USD",
+            "expected_exception": TypeError,  # dict не итерируется как список транзакций
+        },
+        {
+            "name": "элемент_не_словарь",
+            "transactions": [
+                {"id": 1, "operationAmount": {"currency": {"code": "USD"}}},
+                "not_a_dict",
+            ],
+            "currency": "USD",
+            "expected_exception": AttributeError,  # 'str' object has no attribute 'get'
+        },
+    ]
+)
+def currency_error_case(request):
+    """
+    Ошибочные входные данные:
+    - transactions=None
+    - transactions не список
+    - элемент не словарь
+    """
+    return request.param
+
+
+# =============================
+# transaction_descriptions
+# =============================
+
+
+@pytest.fixture(
+    params=[
+        {
+            "name": "обычный_набор",
+            "transactions": [
+                {"id": 1, "description": "Перевод организации"},
+                {"id": 2, "description": "Перевод со счета на счет"},
+                {"id": 3, "description": "Перевод с карты на карту"},
+            ],
+            "expected": [
+                "Перевод организации",
+                "Перевод со счета на счет",
+                "Перевод с карты на карту",
+            ],
+        },
+        {
+            "name": "часть_без_description",
+            "transactions": [
+                {"id": 1, "description": "Перевод организации"},
+                {"id": 2},  # пропущен ключ description
+                {"id": 3, "description": "Снятие наличных"},
+            ],
+            "expected": [
+                "Перевод организации",
+                "Снятие наличных",
+            ],
+        },
+        {
+            "name": "пустой_список",
+            "transactions": [],
+            "expected": [],
+        },
+        {
+            "name": "смешанные_типы",
+            "transactions": [
+                {"id": 1, "description": "Перевод организации"},
+                "не_словарь",
+                None,
+                {"id": 4, "description": "Оплата услуг"},
+            ],
+            "expected": [
+                "Перевод организации",
+                "Оплата услуг",
+            ],
+        },
+    ]
+)
+def descriptions_case(request):
+    """
+    Валидные и граничные сценарии для transaction_descriptions:
+    - обычный набор
+    - пропущенные ключи
+    - пустой список
+    - элементы неправильного типа
+    """
+    return request.param
+
+
+@pytest.fixture(
+    params=[
+        {
+            "name": "transactions_None",
+            "transactions": None,
+            "expected_exception": TypeError,  # неитерируемое значение
+        },
+        {
+            "name": "transactions_число",
+            "transactions": 123,
+            "expected_exception": TypeError,  # неитерируемое значение
+        },
+    ]
+)
+def descriptions_error_case(request):
+    """
+    Ошибочные входы: transactions не является итерируемым.
+    """
+    return request.param
+
+
+# =============================
+# card_number_generator
+# =============================
+
+
+@pytest.fixture(
+    params=[
+        {
+            "name": "малый_диапазон_1_5",
+            "start": 1,
+            "end": 5,
+            "expected": [
+                "0000 0000 0000 0001",
+                "0000 0000 0000 0002",
+                "0000 0000 0000 0003",
+                "0000 0000 0000 0004",
+                "0000 0000 0000 0005",
+            ],
+        },
+        {
+            "name": "граница_минимум_один_элемент",
+            "start": 1,
+            "end": 1,
+            "expected": ["0000 0000 0000 0001"],
+        },
+        {
+            "name": "середина_с_переносом_разрядов",
+            "start": 10_000,  # 0000 0000 0001 0000
+            "end": 10_002,
+            "expected": [
+                "0000 0000 0001 0000",
+                "0000 0000 0001 0001",
+                "0000 0000 0001 0002",
+            ],
+        },
+        {
+            "name": "верхняя_граница_хвост_максимума",
+            "start": 9_999_999_999_999_995,
+            "end": 9_999_999_999_999_999,
+            "expected": [
+                "9999 9999 9999 9995",
+                "9999 9999 9999 9996",
+                "9999 9999 9999 9997",
+                "9999 9999 9999 9998",
+                "9999 9999 9999 9999",
+            ],
+        },
+    ]
+)
+def cardgen_case(request: pytest.FixtureRequest) -> Dict[str, Any]:
+    """
+    Позитивные сценарии для card_number_generator:
+    - маленький диапазон
+    - граничный элемент (start == end)
+    - перенос разрядов при форматировании
+    - хвост у максимума
+    """
+    return request.param
+
+
+@pytest.fixture(
+    params=[
+        {
+            "name": "start_меньше_1",
+            "start": 0,
+            "end": 10,
+            "exc": ValueError,
+        },
+        {
+            "name": "end_больше_максимума",
+            "start": 1,
+            "end": 10_000_000_000_000_000,  # 10^16 (на 1 больше максимума)
+            "exc": ValueError,
+        },
+        {
+            "name": "start_больше_end",
+            "start": 100,
+            "end": 50,
+            "exc": ValueError,
+        },
+        {
+            "name": "start_не_int",
+            "start": "1",
+            "end": 5,
+            "exc": TypeError,
+        },
+        {
+            "name": "end_не_int",
+            "start": 1,
+            "end": 5.0,
+            "exc": TypeError,
+        },
+        {
+            "name": "оба_не_int",
+            "start": "1",
+            "end": "5",
+            "exc": TypeError,
+        },
+        {
+            "name": "отрицательный_start",
+            "start": -10,
+            "end": -1,
+            "exc": ValueError,
+        },
+    ]
+)
+def cardgen_error_case(request: pytest.FixtureRequest) -> Dict[str, Any]:
+    """
+    Негативные сценарии:
+    - выход за допустимые границы
+    - start > end
+    - неверные типы аргументов
     """
     return request.param

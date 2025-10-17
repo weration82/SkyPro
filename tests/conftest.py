@@ -1,6 +1,7 @@
 # conftest.py
-import pytest
 from typing import Any, Dict
+
+import pytest
 
 # =============================
 # get_mask_card_number
@@ -828,5 +829,68 @@ def cardgen_error_case(request: pytest.FixtureRequest) -> Dict[str, Any]:
     - выход за допустимые границы
     - start > end
     - неверные типы аргументов
+    """
+    return request.param
+
+
+# =============================
+# log (decorator)
+# =============================
+
+
+@pytest.fixture(
+    params=[
+        {
+            "name": "ok_console_simple_sum",
+            "to_file": False,
+            "args": (1, 2),
+            "kwargs": {},
+            "expected_line": "add ok",
+        },
+        {
+            "name": "ok_file_sum",
+            "to_file": True,
+            "args": (5, 7),
+            "kwargs": {},
+            "expected_line": "add ok",
+        },
+    ]
+)
+def log_ok_case(request: pytest.FixtureRequest) -> Dict[str, Any]:
+    """
+    Позитивные сценарии для декоратора log:
+    - лог в консоль
+    - лог в файл
+    """
+    return request.param
+
+
+@pytest.fixture(
+    params=[
+        {
+            "name": "err_console_div_by_zero",
+            "to_file": False,
+            "args": (1, 0),
+            "kwargs": {},
+            "exc": ZeroDivisionError,
+            "exc_msg": "division by zero",
+            "op": "div",
+        },
+        {
+            "name": "err_file_typeerror_plus",
+            "to_file": True,
+            "args": ("x", 2),
+            "kwargs": {},
+            "exc": TypeError,
+            "exc_msg": "",  # сообщение TypeError может отличаться в версиях Python
+            "op": "add",
+        },
+    ]
+)
+def log_err_case(request: pytest.FixtureRequest) -> Dict[str, Any]:
+    """
+    Негативные сценарии для декоратора log:
+    - лог ошибки в консоль
+    - лог ошибки в файл
     """
     return request.param
